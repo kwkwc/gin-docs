@@ -172,7 +172,7 @@ func GetTodo(c *gin.Context) {
 
 [Complete example][examples]
 
-## 原项目
+## 移植项目
 
 [Flask-Docs](https://github.com/kwkwc/flask-docs/)
 
