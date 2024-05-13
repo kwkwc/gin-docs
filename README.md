@@ -172,7 +172,7 @@ func GetTodo(c *gin.Context) {
 
 [Complete example][examples]
 
-## Original project
+## Transplantation project
 
 [Flask-Docs](https://github.com/kwkwc/flask-docs/)
 
