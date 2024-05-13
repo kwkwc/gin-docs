@@ -8,21 +8,21 @@
 ![GitHub go.mod Go version (subdirectory of monorepo)](https://img.shields.io/github/go-mod/go-version/kwkwc/gin-docs)
 [![license](https://img.shields.io/github/license/kwkwc/gin-docs)](https://github.com/kwkwc/gin-docs/blob/main/LICENSE)
 
-> Adds Docs support to Gin.
+> Gin API 文档自动生成插件
 
-English | [简体中文](README.zh-CN.md)
+[English](README.md) | 简体中文
 
-## Features
+## 特性
 
-- Automatic generation of markdown documentation
-- Support offline markdown document download
-- Support online debugging
+- 根据代码注释自动生成 Markdown 文档
+- 支持离线 Markdown 文档下载
+- 支持在线调试
 
-## Installation
+## 安装
 
 `go get -u github.com/kwkwc/gin-docs`
 
-## Usage
+## 使用
 
 ```go
 import (
@@ -41,58 +41,58 @@ apiDoc.Init()
 r.Run()
 ```
 
-## View the documentation page
+## 查看文档页面
 
 ```shell
 http://127.0.0.1/docs/api/
 ```
 
-## Configuration
+## 配置
 
 ```go
 type Config struct {
-	// Title, default `API Doc`
+	// 标题, default `API Doc`
 	Title string
-	// Version, default `1.0.0`
+	// 版本, default `1.0.0`
 	Version string
-	// Description
+	// 描述
 	Description string
 
-	// Custom CDN CSS Template
+	// 自定义 CDN CSS 模板
 	CdnCssTemplate string
-	// Custom CDN JS Template
+	// 自定义 CDN JS 模板
 	CdnJsTemplate string
 
-	// Custom url prefix, default `/docs/api`
+	// 自定义 url prefix, default `/docs/api`
 	UrlPrefix string
-	// No document text, default `No documentation found for this API`
+	// 文档不存在时的描述, default `No documentation found for this API`
 	NoDocText string
-	// Enable document pages, default `true`
+	// 启用文档页面, default `true`
 	Enable bool
-	// Using CDN, default `false`
+	// 使用 CDN, default `false`
 	Cdn bool
-	// API package name to exclude
+	// 需要排除的 API 包名
 	Exclude []string
-	// Methods allowed to be displayed, default `[]string{"GET", "POST", "PUT", "DELETE", "PATCH"}`
+	// 允许显示的方法, default `[]string{"GET", "POST", "PUT", "DELETE", "PATCH"}`
 	MethodsList []string
-	// SHA256 encrypted authorization password, e.g. here is admin
+	// SHA256 加密的授权密码，例如这里是 admin
 	// echo -n admin | shasum -a 256
 	// `8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918`
 	PasswordSha2 string
-	// Enable markdown processing for all documents, default `true`
+	// 启用 markdown 处理所有文档, default `true`
 	AllMd bool
 }
 ```
 
-## Tag @@@
+## 标记 @@@
 
 ```shell
-# Process all documents in markdown by default
-# 1. use the `@@@` wrapper if you want to specify processing
-# 2. Turn off `Config.AllMd` and remove the `@@@` tag if you want to display the original document
+# 默认以 markdown 处理所有文档
+# 1. 如果希望指定处理，请使用 `@@@` 包裹
+# 2. 如果希望展示原始文档，请关闭 `Config.AllMd`，并去除 `@@@` 标记
 
 @@@
-# Write your markdown document here
+# 在这里写下你的 markdown 文档
 @@@
 ```
 
@@ -160,19 +160,19 @@ func GetTodo(c *gin.Context) {
 ![sample_app](assets/sample_app_get_1.png)
 ![sample_app](assets/sample_app_get_2.png)
 
-## Debugger
+## 调试器
 
 ![debugger](assets/debugger.png)
 
-## Authentication
+## 认证
 
 ![authentication](assets/authentication.png)
 
-## Examples
+## 示例
 
 [Complete example][examples]
 
-## Original project
+## 原项目
 
 [Flask-Docs](https://github.com/kwkwc/flask-docs/)
 

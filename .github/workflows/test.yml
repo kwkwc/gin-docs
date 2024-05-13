@@ -1,0 +1,50 @@
+name: test
+
+on:
+  push:
+    branches: ["main", "test", "dev", "dev/*", "dev_*"]
+  pull_request:
+    branches: ["main", "test", "dev"]
+  workflow_dispatch:
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: [1.22.x]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ matrix.go-version }}
+  
+    - name: Install dependencies
+      run: |
+        make install
+
+    - name: Format with gofmt
+      run: |
+        make format-check
+
+    - name: Import sorting with goimports
+      run: |
+        make goimports-check
+
+    - name: Lint with golangci-lint
+      run: |
+        make lint
+
+    - name: Test with go test
+      run: |
+        make test
+
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v4
+      env:
+        fail_ci_if_error: true
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
