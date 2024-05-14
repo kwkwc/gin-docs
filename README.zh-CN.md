@@ -19,7 +19,7 @@
 - 支持在线调试
 - 支持生成离线文档
   - [x] HTML
-  - [ ] Markdown
+  - [x] Markdown
 
 ## 安装
 
@@ -49,6 +49,10 @@ r.Run()
 ```shell
 http://127.0.0.1/docs/api/
 ```
+
+## 演示
+
+[在线演示][online_demo]
 
 ## 配置
 
@@ -174,26 +178,47 @@ func GetTodo(c *gin.Context) {
 ## 生成离线文档
 
 ```go
-// HTML: 在 `htmldoc/` 生成离线 HTML 文档
 r := gin.Default()
 
 c := &gd.Config{}
 apiDoc := gd.ApiDoc{Ge: r, Conf: c.Default()}
 
+// HTML: 在 `htmldoc/` 生成离线 HTML 文档
 out := "htmldoc"
 apiDoc.OfflineHtml(out, true)
 
 r.StaticFile(c.UrlPrefix+"/", filepath.Join(out, "index.html"))
 r.StaticFile(c.UrlPrefix+"/data", filepath.Join(out, "data"))
 r.Static(c.UrlPrefix+"/static", filepath.Join(out, "static"))
+
+// Markdown: 生成 `doc.md` 离线 Markdown 文档
+apiDoc.OfflineMarkdown("doc.md", true)
 ```
 
 ## 示例
 
 [Complete example][examples]
 
+## 开发
+
+```bash
+# 克隆代码
+git clone git@github.com:kwkwc/gin-docs.git
+
+# 工作目录
+cd gin-docs
+
+# 安装依赖
+make install
+
+# 运行检查
+make check-all
+```
+
 ## 移植项目
 
 [Flask-Docs](https://github.com/kwkwc/flask-docs/)
 
 [examples]: https://github.com/kwkwc/gin-docs/tree/main/examples
+
+[online_demo]: https://kwkwc.github.io/gin-docs-demo/

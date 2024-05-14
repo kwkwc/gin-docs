@@ -19,7 +19,7 @@ English | [简体中文](README.zh-CN.md)
 - Support online debugging
 - Support Generate offline document
   - [x] HTML
-  - [ ] Markdown
+  - [x] Markdown
 
 ## Installation
 
@@ -49,6 +49,10 @@ r.Run()
 ```shell
 http://127.0.0.1/docs/api/
 ```
+
+## Page demo
+
+[Online Demo][online_demo]
 
 ## Configuration
 
@@ -174,26 +178,47 @@ func GetTodo(c *gin.Context) {
 ## Generate offline document
 
 ```go
-// HTML: Generate offline html document at `htmldoc/`
 r := gin.Default()
 
 c := &gd.Config{}
 apiDoc := gd.ApiDoc{Ge: r, Conf: c.Default()}
 
+// HTML: Generate offline html document at `htmldoc/`
 out := "htmldoc"
 apiDoc.OfflineHtml(out, true)
 
 r.StaticFile(c.UrlPrefix+"/", filepath.Join(out, "index.html"))
 r.StaticFile(c.UrlPrefix+"/data", filepath.Join(out, "data"))
 r.Static(c.UrlPrefix+"/static", filepath.Join(out, "static"))
+
+// Markdown: Generate the `doc.md` offline markdown document
+apiDoc.OfflineMarkdown("doc.md", true)
 ```
 
 ## Examples
 
 [Complete example][examples]
 
+## Development
+
+```bash
+# Clone code
+git clone git@github.com:kwkwc/gin-docs.git
+
+# Working directory
+cd gin-docs
+
+# Install dependencies
+make install
+
+# Run check
+make check-all
+```
+
 ## Transplantation project
 
 [Flask-Docs](https://github.com/kwkwc/flask-docs/)
 
 [examples]: https://github.com/kwkwc/gin-docs/tree/main/examples
+
+[online_demo]: https://kwkwc.github.io/gin-docs-demo/

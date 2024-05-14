@@ -139,6 +139,76 @@ func (d ApiDoc) OfflineHtml(out string, force bool) (err error) {
 	return
 }
 
+func (d ApiDoc) OfflineMarkdown(out string, force bool) (err error) {
+	if out == "" {
+		out = "doc.md"
+	}
+
+	if err := d.init(); err != nil {
+		return err
+	}
+
+	dataMap := d.getApiData()
+
+	dest := filepath.Join(".", out)
+	if ok, _ := pathExists(dest); ok {
+		if !force {
+			return fmt.Errorf("target `%s` exists, set `force=true` to override.", dest)
+		}
+	}
+
+	md := ""
+	for fullName := range dataMap {
+		md += "# " + fullName + "\n\n"
+		for _, item := range dataMap[fullName]["children"] {
+			md += "## " + item["name"]
+			if item["name_extra"] != "" {
+				md += "(" + item["name_extra"] + ")"
+			}
+			md += "\n\n"
+			md = d.handleMd(md, item)
+			md += item["doc_md"] + "\n\n\n"
+		}
+		md += "\n\n"
+	}
+
+	if err := os.WriteFile(dest, []byte(md), 0644); err != nil {
+		return err
+	}
+
+	return
+}
+
+func (d ApiDoc) handleMd(md string, item KVMap) string {
+	md += "### url" + "\n"
+	urls := strings.Split(item["url"], " ")
+	if len(urls) == 1 {
+		urls = []string{strings.Split(urls[0], "\t")[0]}
+	}
+	for i := range len(urls) {
+		md += "- " +
+			strings.Replace(
+				strings.Replace(
+					strings.Replace(
+						urls[i], "\t", " ", -1,
+					), "<", "&lt;", -1,
+				), ">", "&gt;", -1,
+			) +
+			"\n\n"
+	}
+	if item["api_type"] == "api" {
+		md += "### method" + "\n"
+		md += "- " + item["method"] + "\n\n"
+	}
+	if item["doc"] == d.Conf.NoDocText && item["doc_md"] != "" {
+		//
+	} else {
+		md += "### doc" + "\n"
+		md += "```doc\n" + item["doc"] + "\n```\n\n"
+	}
+	return md
+}
+
 func rootPathFunc() {}
 func (d ApiDoc) getRootPath() string {
 	funcValue := reflect.ValueOf(rootPathFunc)
