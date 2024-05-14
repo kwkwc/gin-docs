@@ -1,6 +1,7 @@
 package gin_docs
 
 import (
+	"encoding/json"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -24,9 +25,19 @@ type ApiDoc struct {
 	Conf *Config
 }
 
-func (d ApiDoc) Init() (err error) {
-	rp := d.getRootPath()
-	if err := d.readTemplate(rp); err != nil {
+func (d ApiDoc) init() (err error) {
+	rootPath = d.getRootPath()
+	if err := d.readTemplate(rootPath); err != nil {
+		return err
+	}
+
+	d.getDocData()
+
+	return
+}
+
+func (d ApiDoc) OnlineHtml() (err error) {
+	if err := d.init(); err != nil {
 		return err
 	}
 
@@ -34,10 +45,9 @@ func (d ApiDoc) Init() (err error) {
 		return
 	}
 
-	d.getDocData()
-	dataMap = d.getApiData()
+	dataMap := d.getApiData()
 
-	d.Ge.Static(d.Conf.UrlPrefix+"/static", filepath.Join(rp, "static"))
+	d.Ge.Static(d.Conf.UrlPrefix+"/static", filepath.Join(rootPath, "static"))
 
 	d.Ge.GET(d.Conf.UrlPrefix+"/", func(c *gin.Context) {
 		c.Header("Content-Type", "text/html; charset=utf-8")
@@ -69,9 +79,69 @@ func (d ApiDoc) Init() (err error) {
 	return
 }
 
-func rootPath() {}
+func (d ApiDoc) OfflineHtml(out string, force bool) (err error) {
+	if out == "" {
+		out = "htmldoc"
+	}
+
+	if err := d.init(); err != nil {
+		return err
+	}
+
+	htmlStr := d.renderHtml()
+
+	dataMap := d.getApiData()
+	data := gin.H{
+		"PROJECT_NAME":    PROJECT_NAME,
+		"PROJECT_VERSION": PROJECT_VERSION,
+		"host":            "http://127.0.0.1",
+		"title":           d.Conf.Title,
+		"version":         d.Conf.Version,
+		"description":     d.Conf.Description,
+		"noDocText":       d.Conf.NoDocText,
+		"data":            dataMap,
+	}
+
+	dest := filepath.Join(".", out)
+	if ok, _ := pathExists(dest); ok {
+		if !force {
+			return fmt.Errorf("target `%s` exists, set `force=true` to override.", dest)
+		}
+		if err := os.RemoveAll(dest); err != nil {
+			return err
+		}
+	}
+	if err := os.Mkdir(dest, os.ModePerm); err != nil {
+		return err
+	}
+
+	if err := os.WriteFile(
+		filepath.Join(dest, "index.html"), []byte(htmlStr), 0644,
+	); err != nil {
+		return err
+	}
+	dataByte, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	if err := os.WriteFile(
+		filepath.Join(dest, "data"), dataByte, 0644,
+	); err != nil {
+		return err
+	}
+
+	if err := copyFolder(
+		filepath.Join(rootPath, "static"), filepath.Join(dest, "static"),
+	); err != nil {
+		return err
+	}
+
+	return
+}
+
+func rootPathFunc() {}
 func (d ApiDoc) getRootPath() string {
-	funcValue := reflect.ValueOf(rootPath)
+	funcValue := reflect.ValueOf(rootPathFunc)
 	fn := runtime.FuncForPC(funcValue.Pointer())
 	filePath, _ := fn.FileLine(0)
 	rp := filepath.Dir(filePath)

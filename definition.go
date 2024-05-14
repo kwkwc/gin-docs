@@ -15,7 +15,7 @@ func (ks KVMapSlice) Swap(i, j int)      { ks[i], ks[j] = ks[j], ks[i] }
 type RouterMap map[string][]KVMap
 type DataMap map[string]RouterMap
 
-var dataMap DataMap
+var rootPath string
 
 var templateMap = KVMap{
 	"index":              "",

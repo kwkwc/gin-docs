@@ -17,6 +17,9 @@
 - 根据代码注释自动生成 Markdown 文档
 - 支持离线 Markdown 文档下载
 - 支持在线调试
+- 支持生成离线文档
+  - [x] HTML
+  - [ ] Markdown
 
 ## 安装
 
@@ -36,7 +39,7 @@ r.GET("/api/todo", GetTodo)
 
 c := &gd.Config{}
 apiDoc := gd.ApiDoc{Ge: r, Conf: c.Default()}
-apiDoc.Init()
+apiDoc.OnlineHtml()
 
 r.Run()
 ```
@@ -167,6 +170,23 @@ func GetTodo(c *gin.Context) {
 ## 认证
 
 ![authentication](assets/authentication.png)
+
+## 生成离线文档
+
+```go
+// HTML: 在 `htmldoc/` 生成离线 HTML 文档
+r := gin.Default()
+
+c := &gd.Config{}
+apiDoc := gd.ApiDoc{Ge: r, Conf: c.Default()}
+
+out := "htmldoc"
+apiDoc.OfflineHtml(out, true)
+
+r.StaticFile(c.UrlPrefix+"/", filepath.Join(out, "index.html"))
+r.StaticFile(c.UrlPrefix+"/data", filepath.Join(out, "data"))
+r.Static(c.UrlPrefix+"/static", filepath.Join(out, "static"))
+```
 
 ## 示例
 

@@ -24,3 +24,7 @@ go.work
 # IDE
 .idea
 .vscode
+
+# Docs
+htmldoc/
+doc.md

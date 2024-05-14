@@ -17,6 +17,9 @@ English | [简体中文](README.zh-CN.md)
 - Automatic generation of markdown documentation
 - Support offline markdown document download
 - Support online debugging
+- Support Generate offline document
+  - [x] HTML
+  - [ ] Markdown
 
 ## Installation
 
@@ -36,7 +39,7 @@ r.GET("/api/todo", GetTodo)
 
 c := &gd.Config{}
 apiDoc := gd.ApiDoc{Ge: r, Conf: c.Default()}
-apiDoc.Init()
+apiDoc.OnlineHtml()
 
 r.Run()
 ```
@@ -167,6 +170,23 @@ func GetTodo(c *gin.Context) {
 ## Authentication
 
 ![authentication](assets/authentication.png)
+
+## Generate offline document
+
+```go
+// HTML: Generate offline html document at `htmldoc/`
+r := gin.Default()
+
+c := &gd.Config{}
+apiDoc := gd.ApiDoc{Ge: r, Conf: c.Default()}
+
+out := "htmldoc"
+apiDoc.OfflineHtml(out, true)
+
+r.StaticFile(c.UrlPrefix+"/", filepath.Join(out, "index.html"))
+r.StaticFile(c.UrlPrefix+"/data", filepath.Join(out, "data"))
+r.Static(c.UrlPrefix+"/static", filepath.Join(out, "static"))
+```
 
 ## Examples
 
