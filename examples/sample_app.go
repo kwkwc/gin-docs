@@ -4,7 +4,6 @@ package main
 
 import (
 	"fmt"
-	"log/slog"
 	"net/http"
 	"os"
 
@@ -20,15 +19,15 @@ func main() {
 
 	c := &gd.Config{}
 	apiDoc := gd.ApiDoc{Ge: r, Conf: c.Default()}
-	err := apiDoc.Init()
+	err := apiDoc.OnlineHtml()
 	if err != nil {
-		slog.Error(fmt.Sprintf("Gin-Docs init err: %s", err))
+		fmt.Printf("Gin-Docs err: %s\n", err)
 		os.Exit(1)
 	}
 
 	err = r.Run()
 	if err != nil {
-		slog.Error(fmt.Sprintf("Start service err: %s", err))
+		fmt.Printf("Start service err: %s\n", err)
 		os.Exit(1)
 	}
 }

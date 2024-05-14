@@ -3,6 +3,8 @@ package gin_docs
 import (
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -22,45 +24,83 @@ func setupRouter() *gin.Engine {
 	return r
 }
 
-func setupApiDoc(r *gin.Engine) error {
+func setupOnlineHtml(r *gin.Engine) error {
 	c := &Config{}
 	c = c.Default()
+
 	c.MethodsList = []string{"GET", "POST", "DELETE"}
+
 	c.Title = "Test App"
 	apiDoc := ApiDoc{Ge: r, Conf: c}
-	err := apiDoc.Init()
+	err := apiDoc.OnlineHtml()
 
 	return err
 }
 
-func setupApiDocDisable(r *gin.Engine) error {
+func setupOnlineHtmlDisable(r *gin.Engine) error {
 	c := &Config{}
 	c = c.Default()
+
 	c.Enable = false
+
 	apiDoc := ApiDoc{Ge: r, Conf: c}
-	err := apiDoc.Init()
+	err := apiDoc.OnlineHtml()
 
 	return err
 }
 
-func setupApiDocCdn(r *gin.Engine) error {
+func setupOnlineHtmlCdn(r *gin.Engine) error {
 	c := &Config{}
 	c = c.Default()
+
 	c.Cdn = true
 	c.CdnCssTemplate = "test_css"
 	c.CdnJsTemplate = "test_js"
+
 	apiDoc := ApiDoc{Ge: r, Conf: c}
-	err := apiDoc.Init()
+	err := apiDoc.OnlineHtml()
 
 	return err
 }
 
-func setupApiDocUnauthorized(r *gin.Engine) error {
+func setupOnlineHtmlUnauthorized(r *gin.Engine) error {
 	c := &Config{}
 	c = c.Default()
+
 	c.PasswordSha2 = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"
+
 	apiDoc := ApiDoc{Ge: r, Conf: c}
-	err := apiDoc.Init()
+	err := apiDoc.OnlineHtml()
+
+	return err
+}
+
+func setupOfflineHtml(r *gin.Engine) error {
+	c := &Config{}
+	c = c.Default()
+	c.Title = "Test App"
+	apiDoc := ApiDoc{Ge: r, Conf: c}
+	err := apiDoc.OfflineHtml("", false)
+
+	return err
+}
+
+func setupOfflineHtmlExists(r *gin.Engine) error {
+	c := &Config{}
+	c = c.Default()
+	c.Title = "Test App"
+	apiDoc := ApiDoc{Ge: r, Conf: c}
+	err := apiDoc.OfflineHtml("htmldoc_exists", false)
+
+	return err
+}
+
+func setupOfflineHtmlForce(r *gin.Engine) error {
+	c := &Config{}
+	c = c.Default()
+	c.Title = "Test App"
+	apiDoc := ApiDoc{Ge: r, Conf: c}
+	err := apiDoc.OfflineHtml("htmldoc_exists2", true)
 
 	return err
 }
@@ -93,72 +133,111 @@ func ChangeData(c *gin.Context) {
 	c.JSON(http.StatusOK, nil)
 }
 
-func TestDocsApi(t *testing.T) {
-	router := setupRouter()
-	err := setupApiDoc(router)
+func TestOnlineHtml(t *testing.T) {
+	r := setupRouter()
+	err := setupOnlineHtml(r)
 	assert.NoError(t, err)
 
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("GET", "/docs/api/", nil)
 	assert.NoError(t, err)
 
-	router.ServeHTTP(w, req)
+	r.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)
 	assert.Equal(t, "text/html; charset=utf-8", w.Header().Get("Content-Type"))
 }
 
-func TestDocsApiData(t *testing.T) {
-	router := setupRouter()
-	err := setupApiDoc(router)
+func TestOnlineHtmlData(t *testing.T) {
+	r := setupRouter()
+	err := setupOnlineHtml(r)
 	assert.NoError(t, err)
 
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("GET", "/docs/api/data", nil)
 	assert.NoError(t, err)
 
-	router.ServeHTTP(w, req)
+	r.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
 }
 
-func TestDocsApiDisable(t *testing.T) {
-	router := setupRouter()
-	err := setupApiDocDisable(router)
+func TestOnlineHtmlDisable(t *testing.T) {
+	r := setupRouter()
+	err := setupOnlineHtmlDisable(r)
 	assert.NoError(t, err)
 
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("GET", "/docs/api/", nil)
 	assert.NoError(t, err)
 
-	router.ServeHTTP(w, req)
+	r.ServeHTTP(w, req)
 	assert.Equal(t, 404, w.Code)
 	assert.Equal(t, "text/plain", w.Header().Get("Content-Type"))
 }
 
-func TestDocsApiCdn(t *testing.T) {
-	router := setupRouter()
-	err := setupApiDocCdn(router)
+func TestOnlineHtmlCdn(t *testing.T) {
+	r := setupRouter()
+	err := setupOnlineHtmlCdn(r)
 	assert.NoError(t, err)
 
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("GET", "/docs/api/", nil)
 	assert.NoError(t, err)
 
-	router.ServeHTTP(w, req)
+	r.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)
 	assert.Equal(t, "text/html; charset=utf-8", w.Header().Get("Content-Type"))
 }
 
-func TestDocsApiUnauthorized(t *testing.T) {
-	router := setupRouter()
-	err := setupApiDocUnauthorized(router)
+func TestOnlineHtmlUnauthorized(t *testing.T) {
+	r := setupRouter()
+	err := setupOnlineHtmlUnauthorized(r)
 	assert.NoError(t, err)
 
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("GET", "/docs/api/data", nil)
 	assert.NoError(t, err)
 
-	router.ServeHTTP(w, req)
+	r.ServeHTTP(w, req)
 	assert.Equal(t, 401, w.Code)
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+}
+
+func TestOfflineHtml(t *testing.T) {
+	r := setupRouter()
+	err := setupOfflineHtml(r)
+	assert.NoError(t, err)
+
+	ok, _ := pathExists(filepath.Join("htmldoc", "index.html"))
+	assert.Equal(t, true, ok)
+
+	err = os.RemoveAll("htmldoc")
+	assert.NoError(t, err)
+}
+
+func TestOfflineHtmlShouldErrorWhenExists(t *testing.T) {
+	err := os.Mkdir("htmldoc_exists", os.ModePerm)
+	assert.NoError(t, err)
+
+	r := setupRouter()
+	err = setupOfflineHtmlExists(r)
+	assert.EqualError(t, err, "target `htmldoc_exists` exists, set `force=true` to override.")
+
+	err = os.RemoveAll("htmldoc_exists")
+	assert.NoError(t, err)
+}
+
+func TestOfflineHtmlShouldOverrideWhenForce(t *testing.T) {
+	err := os.Mkdir("htmldoc_exists2", os.ModePerm)
+	assert.NoError(t, err)
+
+	r := setupRouter()
+	err = setupOfflineHtmlForce(r)
+	assert.NoError(t, err)
+
+	ok, _ := pathExists(filepath.Join("htmldoc_exists2", "index.html"))
+	assert.Equal(t, true, ok)
+
+	err = os.RemoveAll("htmldoc_exists2")
+	assert.NoError(t, err)
 }
