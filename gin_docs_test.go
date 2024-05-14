@@ -105,6 +105,36 @@ func setupOfflineHtmlForce(r *gin.Engine) error {
 	return err
 }
 
+func setupOfflineMarkdown(r *gin.Engine) error {
+	c := &Config{}
+	c = c.Default()
+	c.Title = "Test App"
+	apiDoc := ApiDoc{Ge: r, Conf: c}
+	err := apiDoc.OfflineMarkdown("", false)
+
+	return err
+}
+
+func setupOfflineMarkdownExists(r *gin.Engine) error {
+	c := &Config{}
+	c = c.Default()
+	c.Title = "Test App"
+	apiDoc := ApiDoc{Ge: r, Conf: c}
+	err := apiDoc.OfflineMarkdown("doc_exists.md", false)
+
+	return err
+}
+
+func setupOfflineMarkdownForce(r *gin.Engine) error {
+	c := &Config{}
+	c = c.Default()
+	c.Title = "Test App"
+	apiDoc := ApiDoc{Ge: r, Conf: c}
+	err := apiDoc.OfflineMarkdown("doc_exists2.md", true)
+
+	return err
+}
+
 /*
 Submission of data
 
@@ -239,5 +269,44 @@ func TestOfflineHtmlShouldOverrideWhenForce(t *testing.T) {
 	assert.Equal(t, true, ok)
 
 	err = os.RemoveAll("htmldoc_exists2")
+	assert.NoError(t, err)
+}
+
+func TestOfflineMarkdown(t *testing.T) {
+	r := setupRouter()
+	err := setupOfflineMarkdown(r)
+	assert.NoError(t, err)
+
+	ok, _ := pathExists(filepath.Join(".", "doc.md"))
+	assert.Equal(t, true, ok)
+
+	err = os.RemoveAll("doc.md")
+	assert.NoError(t, err)
+}
+
+func TestOfflineMarkdownShouldErrorWhenExists(t *testing.T) {
+	err := os.WriteFile("doc_exists.md", []byte(""), 0644)
+	assert.NoError(t, err)
+
+	r := setupRouter()
+	err = setupOfflineMarkdownExists(r)
+	assert.EqualError(t, err, "target `doc_exists.md` exists, set `force=true` to override.")
+
+	err = os.RemoveAll("doc_exists.md")
+	assert.NoError(t, err)
+}
+
+func TestOfflineMarkdownShouldOverrideWhenForce(t *testing.T) {
+	err := os.WriteFile("doc_exists2.md", []byte(""), 0644)
+	assert.NoError(t, err)
+
+	r := setupRouter()
+	err = setupOfflineMarkdownForce(r)
+	assert.NoError(t, err)
+
+	ok, _ := pathExists(filepath.Join(".", "doc_exists2.md"))
+	assert.Equal(t, true, ok)
+
+	err = os.RemoveAll("doc_exists2.md")
 	assert.NoError(t, err)
 }
