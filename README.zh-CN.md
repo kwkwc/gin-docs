@@ -23,7 +23,9 @@
 
 ## 安装
 
-`go get -u github.com/kwkwc/gin-docs`
+```bash
+go get -u github.com/kwkwc/gin-docs
+```
 
 ## 使用
 
