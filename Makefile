@@ -14,12 +14,12 @@ format:
 format-check:
 	diff -u <(echo -n) <(gofmt -d .)
 
-.PHONY: goimports
-goimports:
+.PHONY: isort
+isort:
 	find . -type f -name '*.go' -not -name '*.pb.go' | xargs goimports -l -w -local github.com/kwkwc/gin-docs
 
-.PHONY: goimports-check
-goimports-check:
+.PHONY: isort-check
+isort-check:
 	diff -u <(echo -n) <(find . -type f -name '*.go' -not -name '*.pb.go' | xargs goimports -d -local github.com/kwkwc/gin-docs)
 
 .PHONY: lint
@@ -38,4 +38,4 @@ test:
 	go tool cover -html=coverage.out -o coverage.html
 
 .PHONY: check-all
-check-all: format-check goimports-check lint test
+check-all: format-check isort-check lint test
