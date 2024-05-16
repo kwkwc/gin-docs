@@ -23,7 +23,9 @@ English | [简体中文](README.zh-CN.md)
 
 ## Installation
 
-`go get -u github.com/kwkwc/gin-docs`
+```bash
+go get -u github.com/kwkwc/gin-docs
+```
 
 ## Usage
 
