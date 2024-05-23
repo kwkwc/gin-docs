@@ -199,7 +199,7 @@ apiDoc.OfflineMarkdown("doc.md", true)
 
 ## 示例
 
-[Complete example][examples]
+[完整示例][examples]
 
 ## 开发
 
